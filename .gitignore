@@ -33,6 +33,9 @@ build-sanitize-thread/
 /quantize
 /server
 /lsp
+/emsdk
+/emscripten
+/binaryen
 
 arm_neon.h
 sync.sh
@@ -59,3 +62,5 @@ cmake-build-debug/
 .cxx/
 .gradle/
 local.properties
+
+.bash_history

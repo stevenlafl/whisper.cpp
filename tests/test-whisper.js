@@ -49,6 +49,12 @@ factory().then(function(whisper) {
             console.log("whisper: failed to transcribe");
             process.exit(1);
         }
+
+        var str = whisper.get_text();
+        console.log('get_text: ' + str);
+
+        var str = whisper.get_segments();
+        console.log('get_segments: ' + JSON.stringify(str, null, 2));
     }
 
     // free memory

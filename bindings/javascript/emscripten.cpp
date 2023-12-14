@@ -90,4 +90,49 @@ EMSCRIPTEN_BINDINGS(whisper) {
 
         return 0;
     }));
+
+    emscripten::function("get_text", emscripten::optional_override([]() {
+        if (g_context == nullptr) {
+            return std::string();
+        }
+
+        int n_segments = whisper_full_n_segments(g_context);
+        std::string text;
+
+        for (int i = 0; i < n_segments; i++) {
+            const char* segment_text = whisper_full_get_segment_text(g_context, i);
+            if (segment_text != nullptr) {
+                text += segment_text;
+            }
+        }
+
+        return text;
+    }));
+
+    emscripten::function("get_segments", emscripten::optional_override([]() -> emscripten::val {
+        if (g_context == nullptr) {
+            return emscripten::val::array();
+        }
+
+        int n_segments = whisper_full_n_segments(g_context);
+        emscripten::val segments = emscripten::val::array();
+
+        for (int i = 0; i < n_segments; i++) {
+            emscripten::val segment_info = emscripten::val::object();
+
+            // Cast int64_t to int, potential overflow is ignored
+            int t0 = static_cast<int>(whisper_full_get_segment_t0(g_context, i));
+            int t1 = static_cast<int>(whisper_full_get_segment_t1(g_context, i));
+            const char* segment_text = whisper_full_get_segment_text(g_context, i);
+
+            // Convert int64_t to BigInt in JavaScript
+            segment_info.set("t0", emscripten::val(t0));
+            segment_info.set("t1", emscripten::val(t1));
+            segment_info.set("text", emscripten::val(segment_text ? segment_text : ""));
+
+            segments.set(i, segment_info);
+        }
+
+        return segments;
+    }));
 }
